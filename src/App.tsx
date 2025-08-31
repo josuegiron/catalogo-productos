@@ -200,7 +200,7 @@ function usePWASetup() {
 // ---------- Carga del Excel con estrategias y fallback ----------
 // Obtiene todo el libro como XLSX desde Google Sheets
 async function fetchExcelArrayBuffer(): Promise<ArrayBuffer | null> {
-  const SHEET_ID = "1L6DSyixp9ejlx8QbNp6x2vMVno6W2m"; // <- reemplaza por el real
+  const SHEET_ID = "1L6DSyixp9ejlx8QbNp6x2vMVno6W2m-E"; // <- reemplaza por el real
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx`;
 
   try {
