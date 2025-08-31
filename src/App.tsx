@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import * as XLSX from "xlsx";
 import { FileDown, Trash2, Search, Settings, CheckCircle2, Plus, Camera, Upload, RefreshCw } from "lucide-react";
-const workerFactory = () => new Worker(new URL("./parse.worker.js", import.meta.url), { type: "module" });
 
 /**
  * ✅ FIX: Manejo robusto del Excel integrado
@@ -225,30 +224,6 @@ export default function App() {
   const [loadError, setLoadError] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const workerRef = useRef(null);
-
-  useEffect(() => { workerRef.current = workerFactory(); return () => workerRef.current?.terminate(); }, []);
-
-  async function loadFromGoogleSheet(sheetId=, useCsv = false) {
-    setLoadError("");
-    try {
-      const buf = await fetchSheetAsArrayBuffer(sheetId, useCsv ? { format: "csv", gid: "0" } : { format: "xlsx" });
-      const products = await new Promise((resolve, reject) => {
-        const onMessage = (e) => {
-          const { ok, products, error } = e.data || {};
-          workerRef.current?.removeEventListener("message", onMessage);
-          ok ? resolve(products) : reject(new Error(error));
-        };
-        workerRef.current?.addEventListener("message", onMessage);
-        workerRef.current?.postMessage({ buf, isCsv: !!useCsv, defaultOption: options[0] || "N/A" });
-      });
-      // setState fuera de transición puede bloquear; usa transición
-      startTransition(() => setProducts(products));
-    } catch (e) {
-      setLoadError(`No se pudo leer Google Sheet: ${e?.message || e}`);
-    }
-}
-
   usePWASetup();
 
   // Instalable
@@ -278,7 +253,7 @@ export default function App() {
     }
   };
 
-  useEffect(() => { loadFromGoogleSheet(); }, []);
+  useEffect(() => { loadExcelFromServer(); }, []);
 
   // Carga manual (fallback) desde archivo local
   const onExcelUpload = async (file?: File | null) => {
