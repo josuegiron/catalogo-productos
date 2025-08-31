@@ -198,27 +198,19 @@ function usePWASetup() {
 }
 
 // ---------- Carga del Excel con estrategias y fallback ----------
+// Obtiene todo el libro como XLSX desde Google Sheets
 async function fetchExcelArrayBuffer(): Promise<ArrayBuffer | null> {
-  const base = (document?.baseURI ?? window.location.origin + "/");
-  const candidates = Array.from(new Set([
-    new URL("Listado_de_productos_prueba.xlsx", base).toString(),
-    new URL("./Listado_de_productos_prueba.xlsx", base).toString(),
-    new URL("/Listado_de_productos_prueba.xlsx", window.location.origin).toString(),
-    "Listado_de_productos_prueba.xlsx",
-    "/Listado_de_productos_prueba.xlsx",
-  ]));
+  const SHEET_ID = "1L6DSyixp9ejlx8QbNp6x2vMVno6W2m"; // <- reemplaza por el real
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx`;
 
-  for (const url of candidates) {
-    try {
-      const res = await fetch(url, { credentials: "same-origin" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.arrayBuffer();
-    } catch (e) {
-      // Continúa con el siguiente candidato
-      console.debug("Ruta Excel fallida:", url, e);
-    }
+  try {
+    const res = await fetch(url, { credentials: "omit" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.arrayBuffer();
+  } catch (e) {
+    console.error("Error cargando Google Sheet como XLSX:", e);
+    return null;
   }
-  return null;
 }
 
 // ---------- App ----------
