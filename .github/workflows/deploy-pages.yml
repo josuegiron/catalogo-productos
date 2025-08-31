@@ -34,9 +34,9 @@ jobs:
           GITHUB_PAGES: true
         run: npm run build
 
-      # Fallback SPA para BrowserRouter (si lo usas). No estorba si no.
+      # (Opcional) fallback para SPA con BrowserRouter
       - name: Add SPA fallback (404.html)
-        run: cp dist/index.html dist/404.html
+        run: cp dist/index.html dist/404.html || true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
